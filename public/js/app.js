@@ -2,7 +2,7 @@ let token = localStorage.getItem('token');
 let user = JSON.parse(localStorage.getItem('user'));
 let currentExam = null;
 let timerInterval = null;
-const api = 'http://localhost:5001/api';
+const api = '/api';
 
 function showView(view) {
   document.querySelectorAll('#app > div').forEach(div => div.classList.add('hidden'));

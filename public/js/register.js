@@ -1,4 +1,4 @@
-const api = 'http://localhost:5001/api';
+const api = '/api';
 
 document.getElementById('registerBtn').addEventListener('click', async () => {
   const name = document.getElementById('name').value;
