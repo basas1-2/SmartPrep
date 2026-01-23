@@ -1,0 +1,24 @@
+{
+  "name": "cbt",
+  "version": "1.0.0",
+  "description": "A Computer-Based Testing system built with Node.js, Express, MongoDB, and vanilla JavaScript.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/basas1-2/SmartPrep.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/basas1-2/SmartPrep/issues"
+  },
+  "homepage": "https://github.com/basas1-2/SmartPrep#readme",
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}
