@@ -5,7 +5,8 @@ const token = localStorage.getItem('token');
 if (!token) window.location.href = 'login.html';
 
 let currentQuestions = [];
-
+let currentQuestionIndex = 0;
+let userAnswers = {}; // To store answers as user progresses
 let timerInterval = null;
 
 async function loadExam() {
@@ -17,22 +18,63 @@ async function loadExam() {
   });
   currentQuestions = await res.json();
   console.log('Loaded questions:', currentQuestions);
-  displayExam();
+  currentQuestionIndex = 0;
+  userAnswers = {};
+  displayQuestion();
+  updateNavigationButtons();
   startTimer(60 * 60); // 60 minutes
 }
 
-function displayExam() {
-  const qDiv = document.getElementById('questions');
-  currentQuestions.forEach((q, i) => {
-    const div = document.createElement('div');
-    div.className = 'mb-4';
-    div.innerHTML = `
-      <p class="font-bold">${i+1}. ${q.question}</p>
-      ${q.options.map((opt, j) => `<label class="block"><input type="radio" name="q${i}" value="${j}"> ${opt}</label>`).join('')}
-    `;
-    qDiv.appendChild(div);
-  });
+function displayQuestion() {
+  const question = currentQuestions[currentQuestionIndex];
+  const qDiv = document.getElementById('question');
+  qDiv.innerHTML = `
+    <p class="font-bold text-lg mb-4">${question.question}</p>
+    <div class="space-y-3">
+      ${question.options.map((opt, j) => {
+        const isChecked = userAnswers[currentQuestionIndex] === j ? 'checked' : '';
+        return `
+          <label class="flex items-center p-3 border rounded cursor-pointer hover:bg-blue-50 transition">
+            <input type="radio" name="answer" value="${j}" ${isChecked} class="w-4 h-4 cursor-pointer" onchange="saveAnswer(${j})">
+            <span class="ml-3 text-lg">${opt}</span>
+          </label>
+        `;
+      }).join('')}
+    </div>
+  `;
+  document.getElementById('questionCounter').textContent = `Question ${currentQuestionIndex + 1} of ${currentQuestions.length}`;
 }
+
+function saveAnswer(selectedIndex) {
+  userAnswers[currentQuestionIndex] = selectedIndex;
+}
+
+function updateNavigationButtons() {
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  
+  prevBtn.disabled = currentQuestionIndex === 0;
+  nextBtn.disabled = currentQuestionIndex === currentQuestions.length - 1;
+  
+  prevBtn.style.opacity = currentQuestionIndex === 0 ? '0.5' : '1';
+  nextBtn.style.opacity = currentQuestionIndex === currentQuestions.length - 1 ? '0.5' : '1';
+}
+
+document.getElementById('nextBtn').addEventListener('click', () => {
+  if (currentQuestionIndex < currentQuestions.length - 1) {
+    currentQuestionIndex++;
+    displayQuestion();
+    updateNavigationButtons();
+  }
+});
+
+document.getElementById('prevBtn').addEventListener('click', () => {
+  if (currentQuestionIndex > 0) {
+    currentQuestionIndex--;
+    displayQuestion();
+    updateNavigationButtons();
+  }
+});
 
 function startTimer(seconds) {
   const timerDiv = document.getElementById('timer');
@@ -54,9 +96,8 @@ async function submitExam() {
   clearInterval(timerInterval);
   const answers = [];
   currentQuestions.forEach((q, i) => {
-    const selected = document.querySelector(`input[name="q${i}"]:checked`);
-    if (selected) {
-      answers.push({ question: q._id, selected: parseInt(selected.value) });
+    if (userAnswers[i] !== undefined) {
+      answers.push({ question: q._id, selected: userAnswers[i] });
     }
   });
   const selections = JSON.parse(localStorage.getItem('examSelections'));
